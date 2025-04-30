@@ -50,4 +50,7 @@ const username = new mongoose.Schema({
             }
         }
     }
-})
+},{timestamps:true})
+
+const User = mongoose.model('User',username)
+module.exports = User
