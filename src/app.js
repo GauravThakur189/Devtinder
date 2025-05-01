@@ -4,8 +4,11 @@ const mongoose = require('mongoose')
 const User = require('./models/user')
 const {validateSignupData, validateSigninData} = require('./utils/validation') 
 const bcrypt = require('bcryptjs')
+const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken')
 const app = express()
-app.use(express.json()) /
+app.use(express.json()) 
+app.use(cookieParser())
 
 app.post('/signup', async(req,res)=>{
     // validation of data
@@ -16,7 +19,7 @@ app.post('/signup', async(req,res)=>{
       console.log(user)
       //encrypting the password
       const hashPassword  = await bcrypt.hash(password, 10)
-       console.log(hashPassword);
+      
        
     //creating the new instance of the user model
     const newUser = new User({
@@ -37,6 +40,7 @@ app.post('/signup', async(req,res)=>{
 })
 
 app.post('/login', async(req,res)=>{
+   
     try {
         //validateSigninData(req)
         const {emailId,password} = req.body
@@ -45,13 +49,38 @@ app.post('/login', async(req,res)=>{
             return res.status(400).send('User not found')
         }
         const isMatch = await bcrypt.compare(password,user.password)
-        if(!isMatch){
-            return res.status(400).send('Invalid Password')
+        if(isMatch){
+            const token = jwt.sign({id:user._id},'secret', {expiresIn:'1h'})
+            res.cookie('token',token)
+            res.send('Login successful')
+            
+        }else{
+        return res.status(400).send('Invalid Password')
         }
-        res.send('Login successful')
 
     } catch (error) {
         res.status(400).send(error.message)
+    }
+})
+
+app.get('/profile',async(req,res)=>{
+    try{
+        const cookie = req.cookies
+        const {token} = cookie
+        if(!token){
+            return res.status(401).send('Unauthorized')
+        }
+    const verify = jwt.verify(token,'secret')
+    const {_id}  = verify
+    console.log(_id)
+    const user = await User.findById(_id)
+    if(!user){
+        return res.status(404).send('User not found')
+    }
+    
+    res.send(user)}
+    catch(error){
+        res.status(400).send("ERROR : "+error.message)
     }
 })
 
