@@ -49,6 +49,40 @@ const username = new mongoose.Schema({
                 throw new Error('Password is weak')
             }
         }
+    },
+    age:{
+        type:Number,
+        min:18,
+    },
+    gender:{
+        type:String,
+        enum:{
+            values: ["male","female","other"],
+            message: '{VALUE} is not valid gender'
+        }
+    },
+    photoUrl:{
+        type:String,
+        validate(value){
+            if(!validator.isURL(value)){
+                throw new Error('Photo URL is invalid')
+            }
+        }
+    },
+    about:{
+        type:String,
+        trim:true,
+        default:'This is the default about of the user',
+        maxLength:500,
+    },
+    skills:{
+        type:[String],
+        maxLength:10,
+        validate(value){
+            if(value.length > 10){
+                throw new Error('Skills should not be more than 10')
+            }
+        }
     }
 },{timestamps:true})
 
