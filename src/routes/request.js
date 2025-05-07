@@ -56,4 +56,41 @@ requestRouter.post('/request/send/:status/:userId',userAuth, async (req, res) =>
    }
 })
 
+requestRouter.post('/request/review/:status/:requestId',userAuth, async (req, res) => {
+    try {
+        const status = req.params.status;
+        const requestId = req.params.requestId;
+
+        const userId = req.user._id;
+
+
+        const allowedStatuses = ['accepted', 'rejected'];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).send('Invalid status', status);
+        }
+
+        const connectionRequest = await ConnectionRequest.findById(requestId);
+        if (!connectionRequest) {
+            return res.status(404).send('Connection request not found');
+        }
+        const fromUserId = connectionRequest.fromUserId;
+        const toUserId = connectionRequest.toUserId;
+        if (userId !== toUserId) {
+            return res.status(403).send('You are not authorized to review this request');
+        }
+        if (connectionRequest.status !== 'pending') {
+            return res.status(400).send('Connection request has already been reviewed');
+        }
+        connectionRequest.status = status;
+        await connectionRequest.save();
+        res.send('Connection request reviewed successfully', { status });
+        
+
+        
+    } catch (error) {
+        res.status(400).send("ERROR : "+error.message)
+        
+    }
+})
+
 module.exports = requestRouter;
