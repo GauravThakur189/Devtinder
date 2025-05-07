@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
+const userRouter = require('../routes/user');
 
 const connectionRequestSchema = new mongoose.Schema({
     fromUserId:{
         type: mongoose.Schema.Types.ObjectId,
         required:true,
-        ref: 'User'
+        ref: 'User' 
     },
     toUserId:{
         type: mongoose.Schema.Types.ObjectId,
         required:true,
+        ref: 'User'
     },
     status:{
         type: String,
@@ -18,5 +20,7 @@ const connectionRequestSchema = new mongoose.Schema({
 },{timestamps:true});
 
 const ConnectionRequest = mongoose.model('ConnectionRequest', connectionRequestSchema);
+
+
 
 module.exports = ConnectionRequest;
