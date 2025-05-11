@@ -8,10 +8,30 @@ const cookieParser = require('cookie-parser')
 const authRouter = require('./routes/auth')
 const profileRouter = require('./routes/profile')
 const requestRouter = require('./routes/request')
+const cors = require('cors')
 
-const app = express()
+const app = express(
+
 app.use(express.json()) 
 app.use(cookieParser())
+app.use(express.urlencoded({ extended: true }));
+
+// Set up CORS properly
+app.use(cors({
+  origin: true, // Allow the requesting origin
+  credentials: true, // Allow cookies to be sent/received
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Or if you need to be more specific about origins:
+
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'], // Add your frontend URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 
 app.use('/',authRouter)
