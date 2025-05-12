@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const userRouter = require('../routes/user');
 
 const connectionRequestSchema = new mongoose.Schema({
     fromUserId:{
