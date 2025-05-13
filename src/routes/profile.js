@@ -19,7 +19,7 @@ profileRouter.get('/profile',async(req,res)=>{
         }
     const verify = jwt.verify(token,'secret')
     const {id}  = verify
-    console.log("id of the user",id)
+    //console.log("id of the user",id)
     const user = await User.findById(id)
     if(!user){
         return res.status(404).send('User not found')
@@ -30,5 +30,47 @@ profileRouter.get('/profile',async(req,res)=>{
         res.status(400).send("ERROR : "+error.message)
     }
 })
+
+profileRouter.patch('/edit/profile',async(req,res)=>{
+    try{
+        const cookie = req.cookies
+        const {token} = cookie
+        if(!token){
+            return res.status(401).send('Unauthorized')
+        }
+        const verify = jwt.verify(token,'secret')
+        const {id}  = verify
+        
+        const user = await User.findById(id)
+        if(!user){
+            return res.status(404).send('User not found')
+        }
+        
+        const {firstName,lastName,photoUrl,age,gender,about} = req.body
+        if(!firstName || !lastName || !photoUrl || !age || !gender || !about){
+            return res.status(400).send('Please provide all the fields')
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(id,{
+            firstName,
+            lastName,
+            photoUrl,
+            age,
+            gender,
+            about
+        },{new:true})
+        if(!updatedUser){
+            return res.status(404).send('User not found')
+        }
+        res.json({
+            message:'User updated successfully',
+            data:updatedUser
+        })
+    }
+    catch(error){
+        res.status(400).send("ERROR : "+error.message)
+    }
+}
+    )
 
 module.exports = profileRouter
