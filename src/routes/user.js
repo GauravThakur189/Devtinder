@@ -7,23 +7,28 @@ const mongoose = require("mongoose");
 
 const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
 
-userRouter.post("/user/request/received", userAuth, async (req, res) => {
+userRouter.get("/user/request/received", userAuth, async (req, res) => {
   try {
-    const loggedInUser = req.userAuth;
+    const loggedInUser = req.user;
     const connectionRequest = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
     })
       .populate("fromUserId", USER_SAFE_DATA)
-      .populate("toUserId", USER_SAFE_DATA);
-    const data = connectionRequest.map((row) => {
-      if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
-        return row.toUserId;
-      } else return row.fromUserId;
-    });
-
+  //     .populate("toUserId", USER_SAFE_DATA);
+  //   const data = connectionRequest.map((row) => {
+  //     if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
+  //       return row.toUserId;
+  //     } else return row.fromUserId;
+  //   });
+  //   console.log("connection request ", connectionRequest);
+    
+  //  console.log("connection request data", data);
+   //console.log("connection request ", connectionRequest);
+   
     res.json({
-      data: data,
+      data: connectionRequest,
+      message: "Data fetched successfully",
     });
   } catch (error) {
     res.status(400).send("ERROR : " + error.message);
@@ -32,7 +37,7 @@ userRouter.post("/user/request/received", userAuth, async (req, res) => {
 
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
-    const loggedInUser = req.userAuth;
+    const loggedInUser = req.user;
     const connectionRequest = await ConnectionRequest.find({
       $or: [
         { fromUserId: loggedInUser._id, status: "accepted" },
@@ -157,6 +162,28 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 });
 
 
+userRouter.get("/user/:id", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.userAuth;
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send("Please provide a user id");
+    }
+    if (loggedInUser._id.toString() === id) {
+      return res.status(400).send("You cannot view your own profile");
+    }
+    const user = await User.findById(id).select(USER_SAFE_DATA);
+    if (!user) {
+      return res.status(400).send("User not found");
+    }
+    res.json({
+      message: "Data fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.status(400).send("ERROR : " + error.message);
+  }
+});
 
 
 module.exports = userRouter;
