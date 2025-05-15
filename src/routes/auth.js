@@ -29,39 +29,23 @@ authRouter.post("/signup", async (req, res) => {
       password: hashPassword, // Store the hashed password
     });
 
-    await newUser.save();
-    // or use a function to save the user to the database
-    res.send("User created successfully");
+   const savedUser = await newUser.save();
+   const token = jwt.sign({ id: savedUser._id }, "secret", { expiresIn: "1h" });
+   res.cookie("token",token,{
+    httpOnly: true,
+    sameSite: 'lax', // 'strict', 'lax', or 'none' (with secure: true for 'none')
+    // secure: true, // Uncomment in production with HTTPS
+    maxAge: 3600000 // 1 hour in milliseconds
+   })
+    
+    res.json({message:"User created successfully",Data:savedUser});
   } catch (error) {
     res.status(400).send(error.message);
     console.log("Error creating user", error.message);
   }
 });
 
-// authRouter.post("/login", async (req, res) => {
-//   try {
-//     //validateSigninData(req);
-//     const { emailId, password } = req.body;
-//     const user = await User.findOne({ emailId });
-//     if (!user) {
-//       return res.status(400).send("User not found");
-//     }
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (isMatch) {
-//       const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "1h" });
-//       res.cookie("token", token);
-//        res.status(200).json({ 
-//      success: true, 
-//      message: "Login successful",
-//      user: user,
-//   });
-//     } else {
-//       return res.status(400).send("Invalid Password");
-//     }
-//   } catch (error) {
-//     res.status(400).send(error.message);
-//   }
-// });
+
 
 
 
