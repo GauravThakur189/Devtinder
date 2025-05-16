@@ -13,35 +13,31 @@ const userRouter = require('./routes/user')
 
 const app = express()
 
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
-     allowedHeaders: ['Content-Type', 'Authorization']
-}))
-// app.options('*', cors());
+// app.use(cors({
+//     origin: 'http://localhost:5173',
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
+//      allowedHeaders: ['Content-Type', 'Authorization']
+// }))
+
+app.use((req, res, next) => {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  
+  // Handle OPTIONS method
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 
 app.use(express.json()) 
 app.use(cookieParser())
-
-
-// Set up CORS properly
-// app.use(cors({
-//   origin: true, // Allow the requesting origin
-//   credentials: true, // Allow cookies to be sent/received
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-// }))
-
-// Or if you need to be more specific about origins:
-
-// app.use(cors({
-//   origin: ['http://localhost:5173', 'http://localhost:3000'], // Add your frontend URL
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-// }))
-
 
 app.use('/',authRouter)
 app.use('/',profileRouter)
