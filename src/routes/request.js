@@ -66,15 +66,13 @@ requestRouter.post('/request/review/:status/:requestId',userAuth, async (req, re
         if (!allowedStatuses.includes(status)) {
             return res.status(400).send('Invalid status', status);
         } 
-         console.log("requestId", requestId);
-         console.log("loggedInUser", loggedInUser._id);
-         console.log("status", status);
+        
         const connectionRequest = await ConnectionRequest.findOne({
             _id: requestId,
             toUserId: loggedInUser._id,
             status: 'interested'
         })
-        console.log("connectionRequest", connectionRequest);
+       
         if (!connectionRequest) {
             return res.status(404).send('Connection request not found');
         }
