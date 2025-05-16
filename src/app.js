@@ -13,27 +13,14 @@ const userRouter = require('./routes/user')
 
 const app = express()
 
-// app.use(cors({
-//     origin: 'http://localhost:5173',
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
-//      allowedHeaders: ['Content-Type', 'Authorization']
-// }))
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
+     allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
-app.use((req, res, next) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  
-  // Handle OPTIONS method
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  
-  next();
-});
+
 
 
 app.use(express.json()) 
